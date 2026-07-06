@@ -17,7 +17,8 @@ export default defineConfig({
         theme_color: "#1e1b4b",
         background_color: "#1e1b4b",
         display: "standalone",
-        start_url: "/",
+        start_url: "/SleepLog/",
+        scope: "/SleepLog/",
         icons: [
           {
             src: "pwa-192x192.png",
