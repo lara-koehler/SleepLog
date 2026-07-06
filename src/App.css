@@ -1,0 +1,111 @@
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  overflow-y: auto;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+  text-align: center;
+}
+
+.hint {
+  color: var(--text);
+  opacity: 0.7;
+  font-size: 16px;
+}
+
+.big-button {
+  font-size: 22px;
+  font-weight: 600;
+  padding: 28px 40px;
+  border-radius: 20px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.big-button.sleep {
+  background: linear-gradient(135deg, #4c1d95, #6d28d9);
+}
+
+.big-button.wake {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+}
+
+.rating-row {
+  display: flex;
+  gap: 12px;
+}
+
+.rating-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rating-button:active {
+  background: var(--accent);
+  color: white;
+}
+
+.stats {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.stats section {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.stats h3 {
+  margin: 4px 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tabbar {
+  display: flex;
+  border-top: 1px solid rgba(128, 128, 128, 0.25);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar button {
+  flex: 1;
+  padding: 14px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--text);
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.tabbar button.active {
+  opacity: 1;
+  color: var(--accent);
+  font-weight: 600;
+}
