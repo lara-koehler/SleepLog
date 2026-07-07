@@ -2,20 +2,9 @@ import { useState } from "react";
 import "./App.css";
 import { LogScreen } from "./LogScreen";
 import { StatsView } from "./StatsView";
+import { MoonIcon } from "./icons";
 
 type Tab = "log" | "stats";
-
-function MoonIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 48 48" fill="currentColor">
-      <path
-        fillRule="evenodd"
-        d="M24,6 m-18,0 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0 Z
-           M31,3 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z"
-      />
-    </svg>
-  );
-}
 
 function ChartIcon() {
   return (

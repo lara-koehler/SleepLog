@@ -7,6 +7,7 @@
   --accent: #c05800;
 
   --display: "Caveat", cursive;
+  --button-font: "DM Serif Display", serif;
   --sans: "Nunito", system-ui, "Segoe UI", Roboto, sans-serif;
 
   font: 18px/145% var(--sans);

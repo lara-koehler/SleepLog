@@ -38,7 +38,10 @@ main {
 }
 
 .big-button {
-  font-family: var(--display);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--button-font);
   font-size: 30px;
   font-weight: 700;
   padding: 30px 44px;
