@@ -56,3 +56,41 @@ export async function deleteRecord(id: number): Promise<void> {
   const db = await dbPromise;
   await db.delete("sleepRecords", id);
 }
+
+export async function clearAllData(): Promise<void> {
+  const db = await dbPromise;
+  await db.clear("sleepRecords");
+}
+
+function randomBetween(min: number, max: number): number {
+  return min + Math.random() * (max - min);
+}
+
+export async function seedFakeData(nights = 60): Promise<void> {
+  const db = await dbPromise;
+  const now = new Date();
+
+  for (let i = nights; i >= 1; i--) {
+    const bedtimeHour = (randomBetween(22, 24.5) + randomBetween(22, 24.5)) / 2;
+    const durationHours = (randomBetween(5.5, 9) + randomBetween(5.5, 9)) / 2;
+
+    const sleepDate = new Date(now);
+    sleepDate.setDate(sleepDate.getDate() - i);
+    sleepDate.setHours(0, 0, 0, 0);
+    sleepDate.setTime(sleepDate.getTime() + bedtimeHour * 3_600_000);
+
+    const wakeDate = new Date(sleepDate.getTime() + durationHours * 3_600_000);
+
+    const durationPenalty = Math.abs(durationHours - 7.5) * 0.7;
+    const bedtimePenalty = bedtimeHour > 24.5 ? (bedtimeHour - 24.5) * 0.8 : 0;
+    const noise = randomBetween(-0.6, 0.6);
+    const rating = Math.max(1, Math.min(5, Math.round(4.7 - durationPenalty - bedtimePenalty + noise)));
+
+    const record: Omit<SleepRecord, "id"> = {
+      sleepTime: sleepDate.toISOString(),
+      wakeTime: wakeDate.toISOString(),
+      rating,
+    };
+    await db.add("sleepRecords", record as SleepRecord);
+  }
+}

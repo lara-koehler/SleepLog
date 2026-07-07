@@ -29,7 +29,7 @@ main {
 }
 
 .rating-question {
-  font-family: var(--display);
+  font-family: var(--button-font);
   font-size: 42px;
   font-weight: 700;
   color: var(--ink);
@@ -84,23 +84,134 @@ main {
 
 .stats {
   flex: 1;
-  padding: 16px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 0;
+  overflow: hidden;
 }
 
-.stats section {
+.range-picker {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.range-picker button {
+  flex: 1;
+  padding: 8px;
+  background: none;
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.range-picker button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--card-bg);
+  opacity: 1;
+}
+
+.testing-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink);
+  opacity: 0.5;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.testing-tools button {
+  background: none;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  color: var(--ink);
+  opacity: 0.8;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.chart-page {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background: var(--card-bg);
   border-radius: 20px;
   padding: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  touch-action: pan-y;
+  overflow: hidden;
 }
 
-.stats h3 {
+.chart-title {
   margin: 4px 8px 0;
   font-family: var(--sans);
   font-size: 15px;
   font-weight: 700;
   color: var(--card-text);
+}
+
+.chart-area {
+  flex: 1;
+  min-height: 0;
+}
+
+.chart-caption {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+
+.swipe-hint {
+  position: absolute;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  opacity: 0.55;
+  margin: 0;
+  pointer-events: none;
+}
+
+.swipe-hint-down {
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.swipe-hint-right {
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.page-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.page-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.3;
+}
+
+.page-dots .dot.active {
+  opacity: 1;
+  background: var(--accent);
 }
 
 .tabbar {

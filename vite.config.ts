@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["apple-touch-icon.png"],
       manifest: {
-        name: "Sleep Tracker",
-        short_name: "Sleep",
+        name: "SleepLog",
+        short_name: "SleepLog",
         description: "Log when you sleep, when you wake, and how you feel.",
         theme_color: "#38240D",
         background_color: "#38240D",
