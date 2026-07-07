@@ -83,6 +83,13 @@ function formatClock(ms: number): string {
   return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function formatDuration(hours: number): string {
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return m === 0 ? `${h}h` : `${h}h${m.toString().padStart(2, "0")}min`;
+}
+
 function formatDate(ms: number): string {
   return new Date(ms).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 }
@@ -100,9 +107,24 @@ function PointTooltip({ active, payload }: PointTooltipProps) {
       <div style={{ fontWeight: 700 }}>{formatDate(p.timeMs)}</div>
       <div>Bedtime: {formatClock(p.timeMs)}</div>
       <div>Wake-up: {formatClock(p.wakeTimeMs)}</div>
-      <div>Duration: {p.durationHours.toFixed(1)}h</div>
+      <div>Duration: {formatDuration(p.durationHours)}</div>
       <div>Rating: {p.rating}/5</div>
     </div>
+  );
+}
+
+interface ActiveDotProps {
+  cx?: number;
+  cy?: number;
+  fill?: string;
+}
+
+function ActiveDot({ cx, cy, fill }: ActiveDotProps) {
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={9} fill="none" stroke="#38240D" strokeWidth={2.5} />
+      <circle cx={cx} cy={cy} r={4} fill={fill} />
+    </g>
   );
 }
 
@@ -125,7 +147,7 @@ const DIMENSIONS: Dimension[] = [
   {
     key: "durationHours",
     title: "Sleep duration vs. how you felt",
-    binLabel: (lo, hi) => `${lo.toFixed(1)}–${hi.toFixed(1)}h`,
+    binLabel: (lo, hi) => `${formatDuration(lo)}–${formatDuration(hi)}`,
   },
   {
     key: "sleepHour",
@@ -270,7 +292,7 @@ export function StatsView() {
                   stroke={TICK_COLOR}
                 />
                 <Tooltip cursor={false} content={<PointTooltip />} />
-                <Scatter data={points}>
+                <Scatter data={points} activeShape={<ActiveDot />}>
                   {points.map((p, i) => (
                     <Cell key={i} fill={lerpColor(RECENCY_OLD, RECENCY_NEW, (p.timeMs - minTime) / timeSpan)} />
                   ))}
