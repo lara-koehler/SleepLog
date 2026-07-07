@@ -233,7 +233,7 @@ export function StatsView() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".csv"
+        accept=".csv,text/csv,text/plain,text/comma-separated-values,application/csv,application/vnd.ms-excel"
         style={{ display: "none" }}
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -263,6 +263,7 @@ export function StatsView() {
       </button>
       <button
         onClick={async () => {
+          if (!confirm("Delete ALL sleep data? This cannot be undone.")) return;
           await clearAllData();
           refresh();
         }}
@@ -352,8 +353,11 @@ export function StatsView() {
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
                 <XAxis dataKey="label" tick={{ fill: TICK_COLOR, fontSize: 11 }} stroke={TICK_COLOR} />
                 <YAxis domain={[1, 5]} tick={{ fill: TICK_COLOR, fontSize: 12 }} stroke={TICK_COLOR} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: unknown) => Number(v).toFixed(2)} />
-                <Bar dataKey="avgRating" fill={MARK_COLOR} radius={[6, 6, 0, 0]}>
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  formatter={(v: unknown) => [Number(v).toFixed(2), "Average Sleep Score"]}
+                />
+                <Bar dataKey="avgRating" name="Average Sleep Score" fill={MARK_COLOR} radius={[6, 6, 0, 0]}>
                   <LabelList
                     dataKey="avgRating"
                     position="top"
