@@ -163,6 +163,11 @@ main {
 .chart-area {
   flex: 1;
   min-height: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chart-area *:focus {
+  outline: none;
 }
 
 .chart-caption {

@@ -6,37 +6,28 @@ export interface Bin {
 
 export function binPoints(
   values: { x: number; rating: number }[],
-  binCount: number,
+  binWidth: number,
   formatLabel: (lo: number, hi: number) => string,
 ): Bin[] {
   if (values.length === 0) return [];
 
   const xs = values.map((v) => v.x);
-  const min = Math.min(...xs);
-  const max = Math.max(...xs);
-  const span = max - min || 1;
-  const width = span / binCount;
+  const start = Math.floor(Math.min(...xs) / binWidth) * binWidth;
 
-  const bins = Array.from({ length: binCount }, (_, i) => ({
-    sum: 0,
-    count: 0,
-    lo: min + i * width,
-    hi: min + (i + 1) * width,
-  }));
-
+  const buckets = new Map<number, { sum: number; count: number }>();
   for (const v of values) {
-    let idx = Math.floor((v.x - min) / width);
-    if (idx >= binCount) idx = binCount - 1;
-    if (idx < 0) idx = 0;
-    bins[idx].sum += v.rating;
-    bins[idx].count += 1;
+    const idx = Math.floor((v.x - start) / binWidth);
+    const entry = buckets.get(idx) ?? { sum: 0, count: 0 };
+    entry.sum += v.rating;
+    entry.count += 1;
+    buckets.set(idx, entry);
   }
 
-  return bins
-    .filter((b) => b.count > 0)
-    .map((b) => ({
-      label: formatLabel(b.lo, b.hi),
-      avgRating: b.sum / b.count,
-      count: b.count,
+  return Array.from(buckets.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([idx, { sum, count }]) => ({
+      label: formatLabel(start + idx * binWidth, start + (idx + 1) * binWidth),
+      avgRating: sum / count,
+      count,
     }));
 }

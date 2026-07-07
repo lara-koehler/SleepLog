@@ -1,6 +1,6 @@
 export const MARK_COLOR = "#C05800";
-export const RECENCY_OLD = "#A98555";
-export const RECENCY_NEW = "#713600";
+export const RECENCY_OLD = "#AD8B5B";
+export const RECENCY_NEW = "#38240D";
 
 function hexToRgb(hex: string) {
   const h = hex.replace("#", "");

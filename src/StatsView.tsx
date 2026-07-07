@@ -223,7 +223,7 @@ export function StatsView() {
     colIndex === 1
       ? binPoints(
           points.map((p) => ({ x: p[dim.key], rating: p.rating })),
-          6,
+          0.25,
           dim.binLabel,
         )
       : [];
@@ -246,7 +246,11 @@ export function StatsView() {
           <ResponsiveContainer width="100%" height="100%">
             {colIndex === 0 ? (
               <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={GRID_COLOR}
+                  horizontalValues={[0.5, 1.5, 2.5, 3.5, 4.5, 5.5]}
+                />
                 <XAxis
                   type="number"
                   dataKey={dim.key}
@@ -260,12 +264,12 @@ export function StatsView() {
                   type="number"
                   dataKey="plotRating"
                   name="Rating"
-                  domain={[0.6, 5.4]}
+                  domain={[0.5, 5.5]}
                   ticks={[1, 2, 3, 4, 5]}
                   tick={{ fill: TICK_COLOR, fontSize: 12 }}
                   stroke={TICK_COLOR}
                 />
-                <Tooltip cursor={{ strokeDasharray: "3 3" }} content={<PointTooltip />} />
+                <Tooltip cursor={false} content={<PointTooltip />} />
                 <Scatter data={points}>
                   {points.map((p, i) => (
                     <Cell key={i} fill={lerpColor(RECENCY_OLD, RECENCY_NEW, (p.timeMs - minTime) / timeSpan)} />

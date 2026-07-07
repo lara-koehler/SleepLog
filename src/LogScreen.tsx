@@ -44,17 +44,9 @@ export function LogScreen() {
         <button
           className="big-button wake"
           onClick={async () => {
-            const wakeTime = new Date();
-            const elapsed = wakeTime.getTime() - new Date(active.sleepTime).getTime();
-
-            if (elapsed < MIN_DURATION_MS) {
-              await deleteRecord(active.id);
-              setActive(null);
-              return;
-            }
-
+            const wakeTime = new Date().toISOString();
             await recordWake(active.id);
-            setActive({ ...active, wakeTime: wakeTime.toISOString() });
+            setActive({ ...active, wakeTime });
           }}
         >
           <SunIcon size={36} />
@@ -64,16 +56,23 @@ export function LogScreen() {
     );
   }
 
+  const isTooShort = new Date(active.wakeTime).getTime() - new Date(active.sleepTime).getTime() < MIN_DURATION_MS;
+
   return (
     <div className="screen">
       <p className="rating-question">How do you feel?</p>
+      {isTooShort && <p className="hint">(just testing the buttons — this won't be saved)</p>}
       <div className="rating-row">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             className="rating-button"
             onClick={async () => {
-              await recordRating(active.id, n);
+              if (isTooShort) {
+                await deleteRecord(active.id);
+              } else {
+                await recordRating(active.id, n);
+              }
               setActive(null);
             }}
           >
