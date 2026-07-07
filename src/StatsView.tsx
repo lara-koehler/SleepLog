@@ -34,7 +34,15 @@ interface Point {
   sleepHour: number;
   wakeHour: number;
   rating: number;
+  plotRating: number;
   timeMs: number;
+  wakeTimeMs: number;
+}
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
 }
 
 function toPoints(records: SleepRecord[]): Point[] {
@@ -49,8 +57,18 @@ function toPoints(records: SleepRecord[]): Point[] {
       if (sleepHour < 12) sleepHour += 24;
 
       const wakeHour = wake.getHours() + wake.getMinutes() / 60;
+      const rating = r.rating as number;
+      const jitter = ((hashString(r.sleepTime) % 1000) / 1000 - 0.5) * 0.7;
 
-      return { durationHours, sleepHour, wakeHour, rating: r.rating as number, timeMs: sleep.getTime() };
+      return {
+        durationHours,
+        sleepHour,
+        wakeHour,
+        rating,
+        plotRating: rating + jitter,
+        timeMs: sleep.getTime(),
+        wakeTimeMs: wake.getTime(),
+      };
     });
 }
 
@@ -59,6 +77,33 @@ function hourLabel(value: unknown): string {
   const h = Math.floor(hour) % 24;
   const m = Math.round((hour % 1) * 60);
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+function formatClock(ms: number): string {
+  return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDate(ms: number): string {
+  return new Date(ms).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+
+interface PointTooltipProps {
+  active?: boolean;
+  payload?: { payload: Point }[];
+}
+
+function PointTooltip({ active, payload }: PointTooltipProps) {
+  if (!active || !payload || !payload.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div style={{ ...TOOLTIP_STYLE, padding: "8px 12px", lineHeight: 1.6 }}>
+      <div style={{ fontWeight: 700 }}>{formatDate(p.timeMs)}</div>
+      <div>Bedtime: {formatClock(p.timeMs)}</div>
+      <div>Wake-up: {formatClock(p.wakeTimeMs)}</div>
+      <div>Duration: {p.durationHours.toFixed(1)}h</div>
+      <div>Rating: {p.rating}/5</div>
+    </div>
+  );
 }
 
 const RANGE_PRESETS = [
@@ -70,13 +115,18 @@ const RANGE_PRESETS = [
 ];
 
 interface Dimension {
-  key: "sleepHour" | "wakeHour" | "durationHours";
+  key: "durationHours" | "sleepHour" | "wakeHour";
   title: string;
   tickFormatter?: (v: unknown) => string;
   binLabel: (lo: number, hi: number) => string;
 }
 
 const DIMENSIONS: Dimension[] = [
+  {
+    key: "durationHours",
+    title: "Sleep duration vs. how you felt",
+    binLabel: (lo, hi) => `${lo.toFixed(1)}–${hi.toFixed(1)}h`,
+  },
   {
     key: "sleepHour",
     title: "Bedtime vs. how you felt",
@@ -89,11 +139,6 @@ const DIMENSIONS: Dimension[] = [
     tickFormatter: hourLabel,
     binLabel: (lo, hi) => `${hourLabel(lo)}–${hourLabel(hi)}`,
   },
-  {
-    key: "durationHours",
-    title: "Sleep duration vs. how you felt",
-    binLabel: (lo, hi) => `${lo.toFixed(1)}–${hi.toFixed(1)}h`,
-  },
 ];
 
 export function StatsView() {
@@ -101,8 +146,8 @@ export function StatsView() {
   const [rangeIndex, setRangeIndex] = useState(2);
   const [rowIndex, setRowIndex] = useState(0);
   const [colIndex, setColIndex] = useState(0);
-  const [hasSwipedDown, setHasSwipedDown] = useState(() => localStorage.getItem("sleeplog_swiped_down") === "1");
-  const [hasSwipedRight, setHasSwipedRight] = useState(() => localStorage.getItem("sleeplog_swiped_right") === "1");
+  const [hasSwipedUp, setHasSwipedUp] = useState(() => localStorage.getItem("sleeplog_swiped_up_v2") === "1");
+  const [hasSwipedRight, setHasSwipedRight] = useState(() => localStorage.getItem("sleeplog_swiped_right_v2") === "1");
 
   function refresh() {
     getAllRecords().then((records) => setAllPoints(toPoints(records)));
@@ -118,19 +163,22 @@ export function StatsView() {
     return allPoints.filter((p) => p.timeMs >= cutoff);
   }, [allPoints, rangeDays]);
 
+  // Swipe direction naming reflects the finger motion Recharts/the browser actually
+  // reports; empirically the "aggregated" toggle matched swipeLeft, not swipeRight,
+  // so the callback bodies are swapped here rather than in useSwipe's raw dx sign.
   const swipe = useSwipe({
-    onSwipeDown: () => {
+    onSwipeUp: () => {
       setRowIndex((r) => Math.min(DIMENSIONS.length - 1, r + 1));
-      localStorage.setItem("sleeplog_swiped_down", "1");
-      setHasSwipedDown(true);
+      localStorage.setItem("sleeplog_swiped_up_v2", "1");
+      setHasSwipedUp(true);
     },
-    onSwipeUp: () => setRowIndex((r) => Math.max(0, r - 1)),
-    onSwipeRight: () => {
+    onSwipeDown: () => setRowIndex((r) => Math.max(0, r - 1)),
+    onSwipeLeft: () => {
       setColIndex((c) => Math.min(1, c + 1));
-      localStorage.setItem("sleeplog_swiped_right", "1");
+      localStorage.setItem("sleeplog_swiped_right_v2", "1");
       setHasSwipedRight(true);
     },
-    onSwipeLeft: () => setColIndex((c) => Math.max(0, c - 1)),
+    onSwipeRight: () => setColIndex((c) => Math.max(0, c - 1)),
   });
 
   const testingTools = (
@@ -210,14 +258,14 @@ export function StatsView() {
                 />
                 <YAxis
                   type="number"
-                  dataKey="rating"
+                  dataKey="plotRating"
                   name="Rating"
-                  domain={[1, 5]}
-                  allowDecimals={false}
+                  domain={[0.6, 5.4]}
+                  ticks={[1, 2, 3, 4, 5]}
                   tick={{ fill: TICK_COLOR, fontSize: 12 }}
                   stroke={TICK_COLOR}
                 />
-                <Tooltip cursor={{ strokeDasharray: "3 3" }} contentStyle={TOOLTIP_STYLE} labelFormatter={dim.tickFormatter} />
+                <Tooltip cursor={{ strokeDasharray: "3 3" }} content={<PointTooltip />} />
                 <Scatter data={points}>
                   {points.map((p, i) => (
                     <Cell key={i} fill={lerpColor(RECENCY_OLD, RECENCY_NEW, (p.timeMs - minTime) / timeSpan)} />
@@ -246,10 +294,10 @@ export function StatsView() {
         {colIndex === 0 && <p className="chart-caption">lighter = older &middot; darker = more recent</p>}
         {colIndex === 1 && <p className="chart-caption">averaged over {bins.reduce((s, b) => s + b.count, 0)} nights</p>}
 
-        {!hasSwipedDown && rowIndex < DIMENSIONS.length - 1 && (
-          <p className="swipe-hint swipe-hint-down">swipe down for more &darr;</p>
+        {!hasSwipedUp && rowIndex < DIMENSIONS.length - 1 && (
+          <p className="swipe-hint swipe-hint-bottom">swipe up for more &uarr;</p>
         )}
-        {colIndex === 0 && !hasSwipedRight && <p className="swipe-hint swipe-hint-right">swipe right for trends &rarr;</p>}
+        {colIndex === 0 && !hasSwipedRight && <p className="swipe-hint swipe-hint-edge">swipe right for trends &rarr;</p>}
 
         <div className="page-dots">
           {DIMENSIONS.map((_, i) => (
