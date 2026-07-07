@@ -255,6 +255,7 @@ export function StatsView() {
       <span>Testing tools:</span>
       <button
         onClick={async () => {
+          if (!confirm("Add 60 nights of fake data? This mixes them in alongside any real data you already have.")) return;
           await seedFakeData(60);
           refresh();
         }}
