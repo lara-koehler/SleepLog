@@ -52,7 +52,7 @@ export function LogScreen() {
 
   return (
     <div className="screen">
-      <p className="hint">How do you feel?</p>
+      <p className="rating-question">How do you feel?</p>
       <div className="rating-row">
         {[1, 2, 3, 4, 5].map((n) => (
           <button

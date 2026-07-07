@@ -11,6 +11,18 @@ import {
 import { getAllRecords } from "./db";
 import type { SleepRecord } from "./types";
 
+const MARK_COLOR = "#C05800";
+const GRID_COLOR = "#71360033";
+const TICK_COLOR = "#713600";
+const TOOLTIP_STYLE = {
+  background: "#FDFBD4",
+  border: "1px solid #713600",
+  borderRadius: 8,
+  color: "#38240D",
+  fontFamily: "Nunito, sans-serif",
+  fontSize: 13,
+};
+
 interface Point {
   durationHours: number;
   sleepHour: number;
@@ -65,17 +77,31 @@ export function StatsView() {
         <h3>Sleep duration vs. how you felt</h3>
         <ResponsiveContainer width="100%" height={220}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
             <XAxis
               type="number"
               dataKey="durationHours"
               name="Duration"
               unit="h"
               domain={["dataMin - 0.5", "dataMax + 0.5"]}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
             />
-            <YAxis type="number" dataKey="rating" name="Rating" domain={[1, 5]} allowDecimals={false} />
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={(v: unknown) => Number(v).toFixed(1)} />
-            <Scatter data={points} fill="#fbbf24" />
+            <YAxis
+              type="number"
+              dataKey="rating"
+              name="Rating"
+              domain={[1, 5]}
+              allowDecimals={false}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
+            />
+            <Tooltip
+              cursor={{ strokeDasharray: "3 3" }}
+              contentStyle={TOOLTIP_STYLE}
+              formatter={(v: unknown) => Number(v).toFixed(1)}
+            />
+            <Scatter data={points} fill={MARK_COLOR} />
           </ScatterChart>
         </ResponsiveContainer>
       </section>
@@ -84,17 +110,27 @@ export function StatsView() {
         <h3>Bedtime vs. how you felt</h3>
         <ResponsiveContainer width="100%" height={220}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
             <XAxis
               type="number"
               dataKey="sleepHour"
               name="Bedtime"
               domain={["dataMin - 0.5", "dataMax + 0.5"]}
               tickFormatter={hourLabel}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
             />
-            <YAxis type="number" dataKey="rating" name="Rating" domain={[1, 5]} allowDecimals={false} />
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} labelFormatter={hourLabel} />
-            <Scatter data={points} fill="#a78bfa" />
+            <YAxis
+              type="number"
+              dataKey="rating"
+              name="Rating"
+              domain={[1, 5]}
+              allowDecimals={false}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
+            />
+            <Tooltip cursor={{ strokeDasharray: "3 3" }} contentStyle={TOOLTIP_STYLE} labelFormatter={hourLabel} />
+            <Scatter data={points} fill={MARK_COLOR} />
           </ScatterChart>
         </ResponsiveContainer>
       </section>
@@ -103,17 +139,27 @@ export function StatsView() {
         <h3>Wake-up time vs. how you felt</h3>
         <ResponsiveContainer width="100%" height={220}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
             <XAxis
               type="number"
               dataKey="wakeHour"
               name="Wake-up"
               domain={["dataMin - 0.5", "dataMax + 0.5"]}
               tickFormatter={hourLabel}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
             />
-            <YAxis type="number" dataKey="rating" name="Rating" domain={[1, 5]} allowDecimals={false} />
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} labelFormatter={hourLabel} />
-            <Scatter data={points} fill="#34d399" />
+            <YAxis
+              type="number"
+              dataKey="rating"
+              name="Rating"
+              domain={[1, 5]}
+              allowDecimals={false}
+              tick={{ fill: TICK_COLOR, fontSize: 12 }}
+              stroke={TICK_COLOR}
+            />
+            <Tooltip cursor={{ strokeDasharray: "3 3" }} contentStyle={TOOLTIP_STYLE} labelFormatter={hourLabel} />
+            <Scatter data={points} fill={MARK_COLOR} />
           </ScatterChart>
         </ResponsiveContainer>
       </section>
