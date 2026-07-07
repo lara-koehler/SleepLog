@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -12,11 +12,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { clearAllData, getAllRecords, seedFakeData } from "./db";
+import { addRecords, clearAllData, getAllRecords, seedFakeData } from "./db";
 import type { SleepRecord } from "./types";
 import { useSwipe } from "./useSwipe";
 import { binPoints } from "./binning";
 import { MARK_COLOR, RECENCY_NEW, RECENCY_OLD, lerpColor } from "./colorScale";
+import { csvToRecords, downloadCsv, recordsToCsv } from "./csv";
+import { DownloadIcon, UploadIcon } from "./icons";
 
 const GRID_COLOR = "#71360033";
 const TICK_COLOR = "#713600";
@@ -122,8 +124,14 @@ interface ActiveDotProps {
 function ActiveDot({ cx, cy, fill }: ActiveDotProps) {
   return (
     <g>
-      <circle cx={cx} cy={cy} r={9} fill="none" stroke="#38240D" strokeWidth={2.5} />
-      <circle cx={cx} cy={cy} r={4} fill={fill} />
+      <defs>
+        <radialGradient id="activeDotGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={fill} stopOpacity={0.85} />
+          <stop offset="100%" stopColor={fill} stopOpacity={0} />
+        </radialGradient>
+      </defs>
+      <circle cx={cx} cy={cy} r={18} fill="url(#activeDotGlow)" />
+      <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#FDFBD4" strokeWidth={1.5} />
     </g>
   );
 }
@@ -170,12 +178,29 @@ export function StatsView() {
   const [colIndex, setColIndex] = useState(0);
   const [hasSwipedUp, setHasSwipedUp] = useState(() => localStorage.getItem("sleeplog_swiped_up_v2") === "1");
   const [hasSwipedRight, setHasSwipedRight] = useState(() => localStorage.getItem("sleeplog_swiped_right_v2") === "1");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function refresh() {
     getAllRecords().then((records) => setAllPoints(toPoints(records)));
   }
 
   useEffect(refresh, []);
+
+  async function handleExport() {
+    const records = await getAllRecords();
+    downloadCsv(recordsToCsv(records));
+  }
+
+  async function handleImportFile(file: File) {
+    const text = await file.text();
+    try {
+      const records = csvToRecords(text);
+      await addRecords(records);
+      refresh();
+    } catch {
+      alert("Couldn't read this file — make sure it's a CSV exported from SleepLog.");
+    }
+  }
 
   const rangeDays = RANGE_PRESETS[rangeIndex].days;
   const points = useMemo(() => {
@@ -202,6 +227,28 @@ export function StatsView() {
     },
     onSwipeRight: () => setColIndex((c) => Math.max(0, c - 1)),
   });
+
+  const dataIo = (
+    <div className="data-io">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImportFile(file);
+          e.target.value = "";
+        }}
+      />
+      <button aria-label="Import CSV" onClick={() => fileInputRef.current?.click()}>
+        <UploadIcon size={18} />
+      </button>
+      <button aria-label="Export CSV" onClick={handleExport}>
+        <DownloadIcon size={18} />
+      </button>
+    </div>
+  );
 
   const testingTools = (
     <div className="testing-tools">
@@ -230,6 +277,7 @@ export function StatsView() {
   if (points.length < 2) {
     return (
       <div className="screen">
+        {dataIo}
         <p className="hint">Log a few more nights to see charts here.</p>
         {testingTools}
       </div>
@@ -252,6 +300,7 @@ export function StatsView() {
 
   return (
     <div className="stats">
+      {dataIo}
       <div className="range-picker">
         {RANGE_PRESETS.map((preset, i) => (
           <button key={preset.label} className={i === rangeIndex ? "active" : ""} onClick={() => setRangeIndex(i)}>

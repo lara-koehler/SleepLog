@@ -42,3 +42,37 @@ export function SunIcon({ size = 20 }: IconProps) {
     </svg>
   );
 }
+
+export function DownloadIcon({ size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <line x1="24" y1="6" x2="24" y2="28" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <polyline
+        points="14,20 24,30 34,20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line x1="10" y1="40" x2="38" y2="40" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function UploadIcon({ size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <line x1="24" y1="8" x2="24" y2="30" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <polyline
+        points="14,18 24,8 34,18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line x1="10" y1="40" x2="38" y2="40" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -62,6 +62,15 @@ export async function clearAllData(): Promise<void> {
   await db.clear("sleepRecords");
 }
 
+export async function addRecords(records: Omit<SleepRecord, "id">[]): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction("sleepRecords", "readwrite");
+  for (const record of records) {
+    await tx.store.add(record as SleepRecord);
+  }
+  await tx.done;
+}
+
 function randomBetween(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
